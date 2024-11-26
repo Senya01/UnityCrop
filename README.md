@@ -2,7 +2,7 @@
 Unity Crop - simple utility that trims sprite sheets based on data from the .meta file of the Unity project.
 
 ## Usage
-1. Download the latest build from the [releases page](https://github.com/Senya01/UnityCrop/releases/tag/Latest).
+1. Download the latest build from the [releases page](https://github.com/Senya01/UnityCrop/releases).
 2. Place exe file to any folder
 3. Run the exe file or manually create the `in` folder
 4. Place the sprite sheet and its .meta file from the Unity project in pairs in the `in` folder. 
