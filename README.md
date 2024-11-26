@@ -1,4 +1,4 @@
-# Unity Crop
+# Unity Crop TEST
 Unity Crop - simple utility that trims sprite sheets based on data from the .meta file of the Unity project.
 
 ## Usage
