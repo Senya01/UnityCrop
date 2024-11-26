@@ -1,10 +1,7 @@
 name: Rust
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch:
 
 env:
   CARGO_TERM_COLOR: always
@@ -14,22 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Rust
-      uses: actions/setup-rust@v1
-      with:
-        rust-version: 1.82.0
-
-    - name: Build
-      run: cargo build --release --verbose
-
-    - name: Create a GitHub Release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: target/release/*
-
-    - name: Upload release assets
-      uses: actions/upload-artifact@v3
-      with:
-        name: release-assets
-        path: target/release/*
+      - name: Build and upload Rust binary to GitHub Releases
+        uses: taiki-e/upload-rust-binary-action@v1.23.0
+            
