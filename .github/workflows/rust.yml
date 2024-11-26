@@ -15,5 +15,21 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+    - name: Set up Rust
+      uses: actions/setup-rust@v1
+      with:
+        rust-version: 1.82.0
+
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --release --verbose
+
+    - name: Create a GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: target/release/*
+
+    - name: Upload release assets
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-assets
+        path: target/release/*
