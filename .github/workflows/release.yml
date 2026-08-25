@@ -1,0 +1,71 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release view "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" || gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --generate-notes
+
+  build:
+    needs: create-release
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            suffix: linux-x64
+            archive: tar
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            suffix: windows-x64
+            archive: zip
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            suffix: macos-x64
+            archive: tar
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            suffix: macos-arm64
+            archive: tar
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - run: cargo build --release --locked --target ${{ matrix.target }}
+
+      - name: Package Unix binary
+        if: matrix.archive == 'tar'
+        shell: bash
+        run: |
+          mkdir dist
+          cp "target/${{ matrix.target }}/release/unity-crop" dist/
+          tar -C dist -czf "unity-crop-${GITHUB_REF_NAME}-${{ matrix.suffix }}.tar.gz" unity-crop
+
+      - name: Package Windows binary
+        if: matrix.archive == 'zip'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Path dist
+          Copy-Item "target/${{ matrix.target }}/release/unity-crop.exe" dist/
+          Compress-Archive -Path dist/unity-crop.exe -DestinationPath "unity-crop-$env:GITHUB_REF_NAME-${{ matrix.suffix }}.zip"
+
+      - name: Upload release asset
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          asset=$(find . -maxdepth 1 -type f -name "unity-crop-${GITHUB_REF_NAME}-${{ matrix.suffix }}.*" -print -quit)
+          gh release upload "$GITHUB_REF_NAME" "$asset" --repo "$GITHUB_REPOSITORY" --clobber
