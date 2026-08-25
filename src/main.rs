@@ -52,7 +52,10 @@ fn run() -> Result<bool, String> {
         summary.elapsed
     );
     if summary.empty_sheets > 0 {
-        println!("Note: {} sheet(s) contained no sliced sprites.", summary.empty_sheets);
+        println!(
+            "Note: {} sheet(s) contained no sliced sprites.",
+            summary.empty_sheets
+        );
     }
     if summary.sheets_found == 0 {
         println!("No sliced PNG sprite sheets were found.");

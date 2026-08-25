@@ -128,7 +128,12 @@ fn safe_relative_path(value: &str) -> Result<PathBuf, String> {
 fn sanitize_component(value: &str) -> String {
     let mut result = String::with_capacity(value.len());
     for character in value.chars() {
-        if character.is_control() || matches!(character, '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*') {
+        if character.is_control()
+            || matches!(
+                character,
+                '<' | '>' | ':' | '"' | '/' | '\\' | '|' | '?' | '*'
+            )
+        {
             result.push('_');
         } else {
             result.push(character);
@@ -141,12 +146,35 @@ fn sanitize_component(value: &str) -> String {
         trimmed.to_owned()
     };
 
-    let stem = result.split('.').next().unwrap_or_default().to_ascii_uppercase();
+    let stem = result
+        .split('.')
+        .next()
+        .unwrap_or_default()
+        .to_ascii_uppercase();
     let reserved = matches!(
         stem.as_str(),
-        "CON" | "PRN" | "AUX" | "NUL"
-            | "COM1" | "COM2" | "COM3" | "COM4" | "COM5" | "COM6" | "COM7" | "COM8" | "COM9"
-            | "LPT1" | "LPT2" | "LPT3" | "LPT4" | "LPT5" | "LPT6" | "LPT7" | "LPT8" | "LPT9"
+        "CON"
+            | "PRN"
+            | "AUX"
+            | "NUL"
+            | "COM1"
+            | "COM2"
+            | "COM3"
+            | "COM4"
+            | "COM5"
+            | "COM6"
+            | "COM7"
+            | "COM8"
+            | "COM9"
+            | "LPT1"
+            | "LPT2"
+            | "LPT3"
+            | "LPT4"
+            | "LPT5"
+            | "LPT6"
+            | "LPT7"
+            | "LPT8"
+            | "LPT9"
     );
     if reserved {
         result.insert(0, '_');

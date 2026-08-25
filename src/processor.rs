@@ -170,15 +170,7 @@ fn process_sheet(
         if cli.fail_fast && cancelled.load(Ordering::Relaxed) {
             break;
         }
-        match export_sprite(
-            cli,
-            files,
-            sheet_name,
-            index,
-            sprite,
-            &image,
-            allocator,
-        ) {
+        match export_sprite(cli, files, sheet_name, index, sprite, &image, allocator) {
             Ok(ExportResult::Written(path)) => {
                 report.written += 1;
                 report.messages.push(format!("write: {}", path.display()));
@@ -209,11 +201,20 @@ fn export_sprite(
         .rect
         .y
         .checked_add(sprite.rect.height)
-        .ok_or_else(|| format!("{} / {}: invalid Y coordinates", files.image.display(), sprite.name))?;
-    let top = image
-        .height()
-        .checked_sub(bottom)
-        .ok_or_else(|| format!("{} / {}: invalid Y coordinates", files.image.display(), sprite.name))?;
+        .ok_or_else(|| {
+            format!(
+                "{} / {}: invalid Y coordinates",
+                files.image.display(),
+                sprite.name
+            )
+        })?;
+    let top = image.height().checked_sub(bottom).ok_or_else(|| {
+        format!(
+            "{} / {}: invalid Y coordinates",
+            files.image.display(),
+            sprite.name
+        )
+    })?;
 
     let context = NamingContext {
         sprite: &sprite.name,
@@ -236,16 +237,12 @@ fn export_sprite(
         return Ok(ExportResult::Written(output));
     }
     if let Some(parent) = output.parent() {
-        fs::create_dir_all(parent)
-            .map_err(|error| format!("{}: failed to create directory: {error}", parent.display()))?;
+        fs::create_dir_all(parent).map_err(|error| {
+            format!("{}: failed to create directory: {error}", parent.display())
+        })?;
     }
 
-    let cropped = image.crop_imm(
-        sprite.rect.x,
-        top,
-        sprite.rect.width,
-        sprite.rect.height,
-    );
+    let cropped = image.crop_imm(sprite.rect.x, top, sprite.rect.width, sprite.rect.height);
     cropped
         .save_with_format(&output, ImageFormat::Png)
         .map_err(|error| format!("{}: failed to save PNG: {error}", output.display()))?;
@@ -437,9 +434,7 @@ TextureImporter:
                 .width(),
             2
         );
-        assert!(output
-            .join("Assets/UI/icons.v2/2_green_icon.png")
-            .is_file());
+        assert!(output.join("Assets/UI/icons.v2/2_green_icon.png").is_file());
 
         fs::remove_dir_all(root).unwrap();
     }

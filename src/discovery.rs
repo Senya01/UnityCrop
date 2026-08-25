@@ -107,7 +107,9 @@ pub fn discover(cli: &Cli) -> Result<Discovery, String> {
         );
     }
 
-    discovery.sheets.sort_by(|left, right| left.image.cmp(&right.image));
+    discovery
+        .sheets
+        .sort_by(|left, right| left.image.cmp(&right.image));
     Ok(discovery)
 }
 
